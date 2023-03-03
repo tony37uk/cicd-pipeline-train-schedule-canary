@@ -1,4 +1,19 @@
-pipeline {
+}
+stage('CanaryDeploy') {
+  when {
+    branch 'master'
+  }
+  environment {
+    CANARY_REPLICAS = 1
+  }
+  steps {
+    kubernetesDeploy(
+      kubeconfigId: 'kubeconfig',
+      configs: 'train-schdeule-kube-canary.yml',
+      enableConfigSubstitution: true
+      )
+  }
+}pipeline {
     agent any
     environment {
         //be sure to replace "willbla" with your own Docker Hub username
@@ -28,6 +43,9 @@ pipeline {
         stage('Push Docker Image') {
             when {
                 branch 'master'
+            }
+            environment {
+                CANARY_REPLICAS = 0
             }
             steps {
                 script {
